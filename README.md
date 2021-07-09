@@ -8,3 +8,6 @@ This project investigates participants' experience when getting milk tea drinks 
 * Data Wrangling <br />
 * Exploratory Data Analysis <br />
 * Conclusion
+
+
+Note: The following link displays how the project should look like when published. https://rpubs.com/santoskim20/789356
