@@ -10,4 +10,4 @@ This project investigates participants' experience when getting milk tea drinks 
 * Conclusion
 
 
-Note: The following link displays how the project should look like when published. https://rpubs.com/santoskim20/789356
+Note: The following link directs you to the published project. https://rpubs.com/santoskim20/789356
