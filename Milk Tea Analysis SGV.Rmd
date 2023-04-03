@@ -1,0 +1,339 @@
+---
+title: "SGV Milk Tea Analysis"
+author: "Kim Santos"
+date: "2023-03-22"
+output: html_document
+---
+
+# **Introduction**
+<font size="3">
+Milk tea is simply tea with milk added. It can come hot or cold and enjoyed with a variety of topping such as boba, jelly, red bean, egg pudding and even more! It has been widely popular through many parts of the world- even more so in certain regions. One of those regions is the San Gabriel Valley located in Southern California.
+</font>
+
+
+## **Investigation**
+<font size="3">
+This project investigates fives subjects and their experience with milk tea in the San Gabriel Valley, where their starting point is in El Monte, CA. Subjects input their own data into one data set altogether and frequently update it as they get their drinks.
+
+Information subjects provide are:
+</font> 
+
+> * <font size="3">**Shop** - name of store <br />
+> * **City** - city Shop is located  <br />
+> * **Distance** - how far Reviewers travel from El Monte, CA to the destination in miles  <br />
+> * **Reviewer** - indicate subjects' name  <br />
+> * **Price** - how much the drink cost  <br />
+> * **Drink Name** - what drink did Reviewers get  <br />
+> * **Boba** - toppings added  <br />
+> * **Rating** - how reviewers rate their drink  <br />
+> * **Rank** - what ranking do reviewers consider the drink  <br />
+> * **Comments** - notes made about the drink  
+
+The experiences and preferences will be observed for each subjects by exploring the data and answering the following research questions.
+</font> 
+
+
+#### **Research Questions** 
+
+> * <font size="3"> Which Cities were the most to least visited? How frequent did each Reviewer visit each city? <br /> 
+> * What is the average Distance Reviewers travel to each city? What is the average distance each Reviewer will drive? <br /> 
+> * What is the correlation between how far Reviewers travel and the cost of milk tea drinks they spend? is the correlation between Reviewers travel and how they rate milk teas? <br /> 
+> * How are the Ratings in each City? <br /> 
+> * Which City has the most Boba topping consumption? Which Reviewers get Boba toppings in their drink? <br /> 
+> * How much do Reviewers Pay for their drinks? 
+</font>
+
+----
+
+# **Setup**
+```{r}
+# loading necessary libraries
+library(readr) #read rectangular text data
+library(ggplot2) # create visualizations
+library(tidyverse) # transform and present data
+library(patchwork) # simple and powerful plot usage
+```
+
+```{r}
+# The working directory is set to where the .csv file is stored in the computer
+# The file is loaded and read with the variable name 'boba'.
+setwd("~/Excel Documents")
+boba <- read_csv("SGV Boba.csv") 
+```
+
+---
+
+# **Data Wrangling**
+<font size="3">
+This section loads and cleans the 'boba' data set. An overview of the data will display general info and identify values not applicable to their corresponding variables or irrelevant observations for analysis.This will allow the exploration of the data accurate results for the responses to the research questions.
+
+This section loads and cleans the 'boba' data set.An overview of the data will display its general info and identify values not applicable to their corresponding...
+</font>
+
+
+#### **Information to wrangle:**
+> <sub>
+<font size="3">
+> 1. Check data types of variables <br />
+> 2. Remove columns: Rank and Comments
+</font>
+
+```{r}
+#view of the whole data set
+as.data.frame(boba)
+```
+
+<font size="3">
+1. Check data types of variables
+</font>
+
+```{r}
+# looking into the structure
+str(boba)
+```
+<font size="3">
+The data type for each variable appears to be correctly identified. It would only be necessary to change the variables' data type if the analysis required for a specific type.
+</font>
+
+<font size="3">
+2. Remove columns: Rank and Comments
+</font>
+
+```{r}
+# first removing Rank and Comments then running head() to see final results
+boba <- select(boba, -c("Rank", "Comments"))
+head(boba)
+```
+
+<font size="3">
+The Rank and Comments columns have been removed as they are not required in this analysis. Now we see the first few rows with the newly cleaned data set.
+</font>
+
+# **Exploratory Data Analysis**
+<font size="3">
+This section will cover answering the research questions we encountered in the beginning of the project.
+</font>
+<br /> 
+<br />
+
+#### Which Cities were the most to least visited? How frequent did each Reviewer visit each city? <br /> 
+```{r}
+# Group cities together and summarize the total amount of reviewers' frequency visiting each city. Then summarize each reviewers' frequency individually for each city.
+
+city_freq <- boba %>%
+  group_by(City) %>%
+  summarise(reviews = length(Reviewer))
+
+city_freq <- city_freq %>%
+  ggplot(aes(reorder(City, reviews) , y = reviews, fill = City)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Frequency Distribution of Reviewers Visiting Each City") +
+  xlab("City") +
+  ylab("Reviewers Count") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = 'none') +
+  coord_flip()
+
+reviewer_city_freq <- boba %>%
+  ggplot(aes(y = City, fill = Reviewer)) +
+  geom_bar(position = position_dodge()) +
+  ggtitle("Reviewers Frequency Visiting Each City") +
+  labs(x = "Cities", y = "Reviewers Frequency Visiting") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Spectral")
+
+city_freq / reviewer_city_freq
+```
+<font size="3">
+<br /> 
+Combining all reviewers' visits, we first see San Gabriel is the most frequently visited city to get milk tea with 20 visits. There are also multiple cities  that are only visited once among the reviewers, which are West Covina, Monrovia, Little Tokyo, Koreatown, and Hacienda Heights.
+
+Looking further into each reviewer, we can see how frequent each reviewer visited each city. It appears Reviewer D and E visted San Gabriel the most and Reviewer visited Alhambra with 5 visits.
+</font>
+<br /> 
+
+---
+
+#### What is the average Distance Reviewers travel to each city? What is the average distance each Reviewer will drive?
+```{r}
+#Graph the average distance reviewers traveled for each city. Then graph each indidivual reviewers travel.
+city_avg_dist <- boba %>%
+  group_by(City) %>%
+  summarise(avg_dist = mean(Distance))
+
+city_avg_dist <-city_avg_dist %>%
+  ggplot(aes(reorder(City, avg_dist), y = avg_dist, fill = City)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Average Distance Reviewers Traveled to Each City") +
+  xlab("City") +
+  ylab("Average Distance") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = 'none') +
+  coord_flip()
+
+reviewer_avg_dist <-boba %>%
+  ggplot(aes(x = Reviewer,fill = mean(Distance))) +
+  geom_bar(position = position_dodge()) +
+  ggtitle("Average Distance Reviewers Travel") +
+  ylab("Avg Distance") +
+  xlab("Reviewers") +
+  theme(legend.position = 'none', plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 0, vjust = 0.5, hjust=.5))
+
+city_avg_dist / reviewer_avg_dist
+```
+<font size="3">
+<br /> 
+We can see the longest average distances Reviewers traveled was just over 30 miles towards Costa Mesa while El Monte is the shortest distance. As for each individual reviewer, they all average a travel distance of around 15 miles and over.
+</font>
+<br /> 
+
+---
+
+#### What is the correlation between how far Reviewers travel and the cost of milk tea drinks they spend? What is the correlation between Reviewers travel and how they rate milk teas?
+```{r}
+# Create scatter plot between Distance and Price
+# Create scatter plot between Distance and Rating
+
+
+# Distance vs Price
+dist_vs_price_scat <- boba %>%
+  ggplot(aes(Distance, Price)) + 
+  geom_point() +
+  ggtitle("Relationship Between Distance vs. Price") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_smooth(method = 'lm', se = FALSE)
+
+dist_vs_rat_scat <- boba %>%
+  ggplot(aes(Distance, Rating)) + 
+  geom_point() +
+  ggtitle("Relationship Between Distance vs. Rating") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_smooth(method = 'lm', se = FALSE)
+
+dist_vs_price_scat / dist_vs_rat_scat
+```
+<font size="3">
+<br /> 
+Although it may first seem there is no correlation between both Distance vs Price and Distance vs Rating, they both have a positive correlation
+</font>
+<br /> 
+
+ 
+---
+#### How are the Ratings in each City?
+```{r}
+# create boxplots for eac City based on Ratings
+city_rat_box <-
+  ggplot(boba, aes(x=City,y=Rating)) + 
+  geom_boxplot() + 
+  ggtitle("City Ratings") +
+  theme(axis.text.x = element_text(angle=60, hjust=1), plot.title = element_text(hjust = 0.5)) 
+
+city_rat_box
+```
+<font size="3">
+<br /> 
+Some Cities do not have a complete boxplots due to only having one data that has been inputted. We will only know how well those specific Cities do in terms of rating set by one Reviewer.
+
+Cities that do have a complete boxplot informs how Reviewers rate their drinks for each city. We see how cities overall some outliers and have 3 types of distributions- symetrical, positively and negatively skewed. 
+
+Those with postive skews: Alhambra, Arcadia, El Monte, and Rowland Heights. 
+Those with negative skews: Pasadena and Rosemead
+Those with symetrical skews: Costa Mesa, Diamond Bar, and Monterey Park
+
+</font>
+<br /> 
+
+
+---
+
+
+#### Which City has the most Boba topping consumption? Which Reviewers get Boba toppings in their drink?
+```{r}
+# create a groupby side by sdie barplot with each city
+boba_city <- boba %>%
+  ggplot(aes(x = City,fill = Boba)) +
+  geom_bar(position = position_dodge()) + 
+  ggtitle("Boba Topping Consumption in Each City") +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
+  scale_fill_manual(values = c("darkolivegreen", "darksalmon"))
+
+rev_got_boba <- boba %>%
+  ggplot(aes(x = Boba, fill = Reviewer)) +
+  geom_bar(position = position_dodge()) +
+  ggtitle("Reviewers who get Toppings") +
+  labs(x = "Reviewers", y = "Topping Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_brewer(palette = "Spectral")
+
+boba_city / rev_got_boba
+```
+<font size="3">
+<br /> 
+The first graph shows which city has the most boba topping consumption between reviewers. Alhambra being the most with no toppings while San Gabriel is even with who gets toppings. For each reviewers, we see Reviewer C rarely gets any while Reviewer B gets the most.
+
+
+</font>
+<br /> 
+
+
+---
+
+
+####  How much do Reviewers Pay for their drinks? 
+```{r}
+# create histogram to view frequency of prices for each reviewer
+
+par(mfrow = c(2,3))
+
+
+a_price <- hist(boba$Price[boba$Reviewer == "Reviewer A"], main = "Reviewer A Price Frequency", xlab = "Price", col = 'lightcoral')
+  
+b_price <- hist(boba$Price[boba$Reviewer == "Reviewer B"], main = "Reviewer B Price Frequency", xlab = "Price", col = 'lightcyan')
+  
+c_price <- hist(boba$Price[boba$Reviewer == "Reviewer C"], main = "Reviewer C Price Frequency", xlab = "Price", col = 'khaki1')
+  
+d_price <- hist(boba$Price[boba$Reviewer == "Reviewer D"], main = "Reviewer D Price Frequency", xlab = "Price", col = 'moccasin')
+
+e_price <- hist(boba$Price[boba$Reviewer == "Reviewer E"], main = "Reviewer E Price Frequency", xlab = "Price", col = 'lavenderblush')
+
+
+# create boxplot for each reviewer based on price variable to compare between eachother
+ggplot(boba, aes(x=Reviewer,y=Price, fill = Reviewer)) + 
+  geom_boxplot() + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle=60, hjust=1)) +
+  theme(legend.position = 'none', plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values = c("lightcoral", "lightcyan", "khaki1", "moccasin", "lavenderblush")) +
+  ggtitle("Reviewer's prices on milk tea drinks")
+```
+<font size="3">
+<br /> 
+The histograms show a frequency how much each reviewers pay for their drinks. It appears between reviewers, they have their own preference in how much they buy drinks.
+
+The boxplots show another visualization to show how much reviewers pay, and they all show a symmetrical, postiive and negative skew distribution. This allows another interpretation to compare payments and whether they fall positively or negatively distributed.
+</font>
+<br /> 
+
+
+-------
+# **Conclusion**
+This project we have explored the 'boba' data set. We observed where reviewers traveled to and analyzed their experiences and preferences they faced as they got milk tea drinks in the San Gabriel Valley.
+
+**Cities**
+We will first talk about the cities overall. San Gabriel came out to be the most visited city among reviewers with a total of 20 visits while West Covina, Monrovia, Little Tokyo, Koreatown and Hacienda Heights only have 1 visit. Since San Gabriel has the most visits, reviewers traveld an average 4 miles as their starting point is in El Monte. As for the other cities that were least visited, they traveled an average 7 miles and more. These cities were one of the shortest distances, yet we see Costa Mesa is the only one with 30 miles. With all the traveling between cities, we observed the relationship between cities and how they rate/ pay for drinks. The relationship for both has all been positively, negatively and symmetrically skewed. Lastly, the amount of toppings consumed was also observed. Alhambra has the least topping consumptions while San Gabriel was equal in having the most and least amount of consumptions.
+
+**Reviewers**
+Now we will take a look into each reviewer individually. Reviewers have driven an average of 15 miles and over. Despite the long distance, we noticed that an average of 5 miles was frequently made. Reviewer D and E visited San Gabriel the most while Reviewer C visited Alhambra the most- all with a total of 5 visits. We also took a look at which reviewer gets the most and least boba toppings in each city and how much they would frequently pay. The reviewer who gets the most boba toppings and Reviewer B and Reviewer C gets the least. With how much reviewers spend on milk tea, it appears they would pay from a range of $3-$6 with the exception of some paying over $6.
+
+**Overall**
+Based on our analysis, we can make assumptions about reviewers and their experiences with each city. Reviewers may prefer a specific city to get milk tea based on the amount of visits they frequent and how much they are willing to spend and travel. From what it seems, San Gabriel is a top city to visit as it is the shortest distance and most visits. 
+
+
+### **Limitations**
+There have subjective preferences that occurred from the data set.
+
+**Milk tea preferences**
+* When getting milk tea, options are usually given in how reviewers prefer their drinks. This is from the amount of sugar, ice levels, and size. This shows a disparity on reviewers experiences.
+
+**Travel Distance**
+* The willingness reviewers will travel is also subjective. This may be due to a milk tea reviewers really enjoy and will travel more to get it. However, it may also be the case reviewers may really like a drink but will not go such a distance just to get it.
+
