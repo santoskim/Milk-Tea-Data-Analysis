@@ -12,4 +12,4 @@ RStudio and its libraries are utilized to perform predictive models and statisti
 * Conclusion
 
 
-Note: The following link directs you to the published project. https://rpubs.com/santoskim20/789356
+Note: The following link directs you to the published project. https://rpubs.com/santoskim20/1022001
