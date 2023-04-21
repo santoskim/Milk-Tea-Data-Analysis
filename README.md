@@ -1,8 +1,8 @@
 # Milk-Tea-Exploratory Data Analysis
 
-This project investigates participants' experience when getting milk tea drinks around the San Gabriel Valley. Participants fills in a spread sheet that includes: **shop**, **city**, **distance**, **reviewer name**, **price**, **drink name**, **boba**, **rate**, **rank**, and **comments**. With the gathered data, we are able to investigate relationships and utilize statistical methods
+This project explores subjects' experience of purchasing milk tea drinks across the San Gabriel Valley. Subjects provide data by filling out a spreadsheat that contains information such as shop name, city, distance, reviewer name, price, drink name, boba, rating, ranking, and comments. The collected data enables us to investigate relationships between variables and utilize statistical methods.
 
-RStudio and its libraries are utilized to perform predictive models and statistical analyses in order to conceptualize and share insights on the performance for each cities.
+We utilized RStudio and its libraries to perform predictive modeling and statistical analyses to conceptualize and share insights on the performance of each city and subjects' experience.
 
 # Sections
 * Introduction <br />
